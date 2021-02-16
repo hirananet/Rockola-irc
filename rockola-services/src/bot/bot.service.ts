@@ -70,7 +70,8 @@ export class BotService {
                     if(parts[1]) { // con link
                         // verificamos si es op del canal o que onda?
                         if(this.isOp(channel, from)) {
-
+                            this.listSrv.forcePlay(channel, parts[1]);
+                            // TODO: responder forceplay
                         } else {
                             this.morePrivsRequired(channel, from, 'HalfOp');
                         }
@@ -93,25 +94,28 @@ export class BotService {
                 } else if(command.indexOf('pause') === 0) {
                     if(this.isOp(channel, from)) {
                         this.listSrv.pause(channel);
+                        // TODO: responder pausado
                     } else {
                         this.morePrivsRequired(channel, from, 'HalfOp');
                     }
                 } else if(command.indexOf('add') === 0) {
                     if(this.isVoiced(channel, from)) {
-                        // TODO: validar link
                         this.listSrv.add(channel, command.split(' ')[1]);
+                        // TODO: responder agregado
                     } else {
                         this.morePrivsRequired(channel, from, 'Voice');
                     }
                 } else if(command.indexOf('remove') === 0) {
                     if(this.isOp(channel, from)) {
                         this.listSrv.remove(channel, command.split(' ')[1]);
+                        // TODO: responder removido
                     } else {
                         this.morePrivsRequired(channel, from, 'HalfOp');
                     }
                 } else if(command.indexOf('next') === 0) {
                     if(this.isOp(channel, from)) {
                         this.listSrv.next(channel);
+                        // TODO: responder pasado
                     } else {
                         this.morePrivsRequired(channel, from, 'HalfOp');
                     }
