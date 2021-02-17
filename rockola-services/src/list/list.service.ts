@@ -50,9 +50,10 @@ export class ListService {
                 const duration = d?.data?.items[0]?.contentDetails?.duration;
                 if(duration) {
                     const msDuration = this.youtubeSrv.processTime(duration) * 1000;
-                    console.log('Duration processed: ', msDuration);
+                    console.log('Duration processed: ', d.data.items[0]);
                     this.lists[chann].initAt = (new Date()).getTime();
                     this.timmers[chann] = setTimeout(() => {
+                        console.log('--- Song finished, going next ----');
                         this.next(chann);
                     }, msDuration);
                     this.lists[chann].playing = true;
@@ -73,17 +74,23 @@ export class ListService {
 
     public forcePlay(chann: string, link: string): boolean {
         const ytID = this.youtubeSrv.getVideoID(link);
+        this.pause(chann);
         if(ytID) {
             this.createList(chann);
             this.lists[chann].playing = true;
             this.lists[chann].currentSong = ytID;
-            this.start(chann);
+            this.youtubeSrv.getVideoSnippet(ytID).subscribe(d => {
+                this.lists[chann].currentTitle = d.data?.items[0]?.snippet?.title;
+                this.sendPlaylist(chann);
+                this.start(chann);
+            });
             return true;
         }
         return false;
     }
 
     public pause(chann: string): void {
+        if(!this.lists[chann]) return;
         clearTimeout(this.timmers[chann]);
         this.lists[chann].playing = false;
         this.sendPause(chann);
@@ -102,26 +109,40 @@ export class ListService {
     public add(chann: string, link: string): boolean {
         const ytID = this.youtubeSrv.getVideoID(link);
         if(ytID) {
-            this.createList(chann);
-            if(this.lists[chann].currentSong) {
-                this.lists[chann].list.push(ytID);
-            } else {
-                this.lists[chann].currentSong = ytID;
-            }
-            this.sendPlaylist(chann);
+            this.aid(chann, ytID);
             return true;
         }
         return false;
     }
 
+    public aid(chann: string, ytID: string) {
+        this.createList(chann);
+        if(this.lists[chann].currentSong) {
+            this.youtubeSrv.getVideoSnippet(ytID).subscribe(d => {
+                this.lists[chann].list.push({id: ytID, title: d.data?.items[0]?.snippet?.title});
+                this.sendPlaylist(chann);
+            });
+        } else {
+            this.youtubeSrv.getVideoSnippet(ytID).subscribe(d => {
+                this.lists[chann].currentSong = ytID;
+                this.lists[chann].currentTitle = d.data?.items[0]?.snippet?.title;
+                this.sendPlaylist(chann);
+            });
+        }
+    }
+
     public remove(chann: string, link: string) {
         const ytID = this.youtubeSrv.getVideoID(link);
         if(ytID) {
-            this.lists[chann].list = this.lists[chann].list.filter(_ytid => _ytid != ytID);
-            this.sendPlaylist(chann);
+            this.rid(chann, ytID);
             return true;
         }
         return false;
+    }
+
+    public rid(chann: string, ytID: string) {
+        this.lists[chann].list = this.lists[chann].list.filter(_ytid => _ytid.id != ytID);
+        this.sendPlaylist(chann);
     }
 
     private sendPlaylist(chann: string) {
@@ -150,7 +171,9 @@ export class ListService {
 
     public next(chann: string) {
         if(this.lists[chann].list.length > 0) {
-            this.lists[chann].currentSong = this.lists[chann].list.splice(0, 1)[0];
+            const song = this.lists[chann].list.splice(0, 1)[0];
+            this.lists[chann].currentSong = song.id;
+            this.lists[chann].currentTitle = song.title;
             this.sendPlaylist(chann);
             this.start(chann);
         } else {
@@ -175,8 +198,9 @@ export interface ChanLists {
 
 export class ChannelList {
     public channel: string;
-    public list: string[];
+    public list: {id: string, title: string}[];
     public playing: boolean;
     public currentSong?: string;
+    public currentTitle?: string;
     public initAt?: number;
 }

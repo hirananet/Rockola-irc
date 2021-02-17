@@ -14,6 +14,10 @@ export class YoutubeService {
         return this.httpClient.get('https://www.googleapis.com/youtube/v3/videos?id=' + id + '&part=contentDetails&key=' + apiCredentials.yt3);
     }
 
+    getVideoSnippet(id: string): Observable<AxiosResponse<YTDetails>> {
+        return this.httpClient.get('https://www.googleapis.com/youtube/v3/videos?id=' + id + '&part=snippet&key=' + apiCredentials.yt3);
+    }
+
     processTime(duration: string) {
         var match = duration.match(/PT(\d+H)?(\d+M)?(\d+S)?/);
         
@@ -52,6 +56,7 @@ export class YTDetail {
     etag: string;
     id: string;
     contentDetails: VideoDetail;
+    snippet: VideoSnippet;
 }
 
 export class VideoDetail {
@@ -62,6 +67,19 @@ export class VideoDetail {
     licensedContent: boolean;
     contentRating: any;
     projection: string;
+}
+
+export class VideoSnippet {
+    publishedAt: string;
+    channelId: string;
+    title: string;
+    description: string;
+    thumbails: any;
+    channelTitle: string;
+    tags: string[];
+    categoryaID: number;
+    liveBroadcastContent: string;
+    localized: any;
 }
 
 export class YTPageInfo {

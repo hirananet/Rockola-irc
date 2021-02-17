@@ -86,7 +86,7 @@ export class BotService {
                                 this.client.say(channel, from + ', la lista ya está en reproducción');
                             } else {
                                 this.listSrv.start(channel);
-                                this.client.say(channel, '@todos iniciando rockola [/R>]');
+                                this.client.say(channel, '@todos iniciando rockola :playlist:');
                             }
                         } else {
                             this.client.say(channel, from + ', no hay una lista disponible, por favor use play http://youtubelink o add http://youtubelink para iniciar una lista.')
@@ -100,6 +100,13 @@ export class BotService {
                         this.client.say(channel, from + ', la lista fue pausada');
                     } else {
                         this.morePrivsRequired(channel, from, 'HalfOp');
+                    }
+                } else if(command.toLowerCase().indexOf('aid') === 0) {
+                    if(this.isVoiced(channel, from)) {
+                        this.listSrv.aid(channel, command.split(' ')[1])
+                        this.client.say(channel, from + ', agregado a la lista.');
+                    } else {
+                        this.morePrivsRequired(channel, from, 'Voice');
                     }
                 } else if(command.toLowerCase().indexOf('add') === 0) {
                     if(this.isVoiced(channel, from)) {
@@ -118,6 +125,13 @@ export class BotService {
                         } else {
                             this.client.say(channel, from + ', no reconozco ese enlace de yt.');
                         }
+                    } else {
+                        this.morePrivsRequired(channel, from, 'HalfOp');
+                    }
+                } else if(command.toLowerCase().indexOf('rid') === 0) {
+                    if(this.isOp(channel, from)) {
+                        this.listSrv.rid(channel, command.split(' ')[1]);
+                        this.client.say(channel, from + ', eliminado de la lista.');
                     } else {
                         this.morePrivsRequired(channel, from, 'HalfOp');
                     }
@@ -149,8 +163,10 @@ export class BotService {
                 this.client.say(from, botEnvironment.botName + ' play <reproducir la lista del canal actual>');
                 this.client.say(from, botEnvironment.botName + ' play http://linkyoutube <reproducir el tema ignorando la lista y saltando el actual>');
                 this.client.say(from, botEnvironment.botName + ' add http://linkyoutube <agregar un link a la lista>');
+                this.client.say(from, botEnvironment.botName + ' aid 2DcMBxiW8Uw <agregar un video de youtube por su id>');
                 this.client.say(from, botEnvironment.botName + ' next <pasar al siguiente tema de la lista>');
                 this.client.say(from, botEnvironment.botName + ' remove http://linkyoutube <eliminar este link de la lista>');
+                this.client.say(from, botEnvironment.botName + ' rid 2DcMBxiW8Uw <eliminar este video de la lista>');
                 this.client.say(from, botEnvironment.botName + ' pause <detiene la lista de reproducción>');
             }
         }
