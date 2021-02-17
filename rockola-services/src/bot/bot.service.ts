@@ -70,23 +70,26 @@ export class BotService {
                     if(parts[1]) { // con link
                         // verificamos si es op del canal o que onda?
                         if(this.isOp(channel, from)) {
-                            this.listSrv.forcePlay(channel, parts[1]);
-                            this.client.say(channel, 'Reproduciendo el video.')
+                            if(this.listSrv.forcePlay(channel, parts[1])) {
+                                this.client.say(channel, from + ', reproduciendo el video.');
+                            } else {
+                                this.client.say(channel, from + ', no reconozco el video de yt.');
+                            }
                         } else {
                             this.morePrivsRequired(channel, from, 'HalfOp');
                         }
                     } else { // solo play
-                        if(this.isVoiced(channel, from)) {
+                        if(!this.isVoiced(channel, from)) {
                             this.morePrivsRequired(channel, from, 'Voice');
                         } else if(this.listSrv.exists(channel)) {
                             if(this.listSrv.getList(channel).playing) {
-                                this.client.say(channel, 'La lista ya está en reproducción');
+                                this.client.say(channel, from + ', la lista ya está en reproducción');
                             } else {
                                 this.listSrv.start(channel);
-                                this.client.say(channel, '!iniciando rockola');
+                                this.client.say(channel, '@todos iniciando rockola [R>]');
                             }
                         } else {
-                            this.client.say(channel, 'No hay una lista disponible, por favor use play http://youtubelink o add http://youtubelink para iniciar una lista.')
+                            this.client.say(channel, from + ', no hay una lista disponible, por favor use play http://youtubelink o add http://youtubelink para iniciar una lista.')
                         }
                     }
                     // play link
@@ -94,28 +97,34 @@ export class BotService {
                 } else if(command.indexOf('pause') === 0) {
                     if(this.isOp(channel, from)) {
                         this.listSrv.pause(channel);
-                        this.client.say(channel, 'La lista fue pausada');
+                        this.client.say(channel, from + ', la lista fue pausada');
                     } else {
                         this.morePrivsRequired(channel, from, 'HalfOp');
                     }
                 } else if(command.indexOf('add') === 0) {
                     if(this.isVoiced(channel, from)) {
-                        this.listSrv.add(channel, command.split(' ')[1]);
-                        this.client.say(channel, 'Agregado a la lista.');
+                        if(this.listSrv.add(channel, command.split(' ')[1])) {
+                            this.client.say(channel, from + ', agregado a la lista.');
+                        } else {
+                            this.client.say(channel, from + ', no reconozco ese enlace de youtube.');
+                        }
                     } else {
                         this.morePrivsRequired(channel, from, 'Voice');
                     }
                 } else if(command.indexOf('remove') === 0) {
                     if(this.isOp(channel, from)) {
-                        this.listSrv.remove(channel, command.split(' ')[1]);
-                        this.client.say(channel, 'Eliminado de la lista.');
+                        if(this.listSrv.remove(channel, command.split(' ')[1])) {
+                            this.client.say(channel, from + ', eliminado de la lista.');
+                        } else {
+                            this.client.say(channel, from + ', no reconozco ese enlace de yt.');
+                        }
                     } else {
                         this.morePrivsRequired(channel, from, 'HalfOp');
                     }
                 } else if(command.indexOf('next') === 0) {
                     if(this.isOp(channel, from)) {
                         this.listSrv.next(channel);
-                        this.client.say(channel, 'Avanzando tema.');
+                        this.client.say(channel, from + ', avanzando tema.');
                     } else {
                         this.morePrivsRequired(channel, from, 'HalfOp');
                     }

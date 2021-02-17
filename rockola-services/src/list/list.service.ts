@@ -1,11 +1,14 @@
 import { SocketWI } from './../gateway/SocketWI';
 import { Injectable } from '@nestjs/common';
+import { YoutubeService } from 'src/youtube/youtube.service';
 
 @Injectable()
 export class ListService {
 
     public lists: ChanLists = {};
     public sockets: {[chann: string]: SocketWI[]} = {};
+
+    constructor(private youtubeSrv: YoutubeService) { }
 
     public assoc(chan: string, socket: SocketWI) {
         if(!this.sockets[chan]) {
@@ -41,12 +44,16 @@ export class ListService {
         this.sendStartEvent(chann);
     }
 
-    public forcePlay(chann: string, link: string) {
-        // TODO: controlar tiempo para siguiente canción
-        // TODO: controlar link
-        this.lists[chann].playing = true;
-        this.lists[chann].currentSong = link;
-        this.sendStartEvent(chann);
+    public forcePlay(chann: string, link: string): boolean {
+        const ytID = this.youtubeSrv.getVideoID(link);
+        if(ytID) {
+            // TODO: controlar tiempo para siguiente canción
+            this.lists[chann].playing = true;
+            this.lists[chann].currentSong = ytID;
+            this.sendStartEvent(chann);
+            return true;
+        }
+        return false;
     }
 
     public pause(chann: string): void {
@@ -55,20 +62,28 @@ export class ListService {
         this.sendPause(chann);
     }
 
-    public add(chann: string, link: string) {
-        // TODO: controlar link
-        if(this.lists[chann].currentSong) {
-            this.lists[chann].list.push(link);
-        } else {
-            this.lists[chann].currentSong = link;
+    public add(chann: string, link: string): boolean {
+        const ytID = this.youtubeSrv.getVideoID(link);
+        if(ytID) {
+            if(this.lists[chann].currentSong) {
+                this.lists[chann].list.push(ytID);
+            } else {
+                this.lists[chann].currentSong = ytID;
+            }
+            this.sendPlaylist(chann);
+            return true;
         }
-        this.sendPlaylist(chann);
+        return false;
     }
 
     public remove(chann: string, link: string) {
-        // TODO: controlar link
-        this.lists[chann].list = this.lists[chann].list.filter(_link => _link != link);
-        this.sendPlaylist(chann);
+        const ytID = this.youtubeSrv.getVideoID(link);
+        if(ytID) {
+            this.lists[chann].list = this.lists[chann].list.filter(_ytid => _ytid != ytID);
+            this.sendPlaylist(chann);
+            return true;
+        }
+        return false;
     }
 
     private sendPlaylist(chann: string) {
