@@ -177,7 +177,10 @@ export class ListService {
             this.sendPlaylist(chann);
             this.start(chann);
         } else {
+            this.logger.error('STOPPED END LIST ' + chann);
             this.lists[chann].playing = false;
+            this.lists[chann].currentSong = undefined;
+            this.lists[chann].currentTitle = undefined;
             this.sendPause(chann);
         }
     }
