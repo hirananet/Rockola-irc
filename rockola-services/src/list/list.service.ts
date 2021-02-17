@@ -8,6 +8,7 @@ export class ListService {
     private readonly logger = new Logger(ListService.name);
 
     public lists: ChanLists = {};
+    public timmers: {[chann: string]: NodeJS.Timeout} = {};
     public sockets: {[chann: string]: SocketWI[]} = {};
 
     constructor(private youtubeSrv: YoutubeService) { }
@@ -51,7 +52,7 @@ export class ListService {
                     const msDuration = this.youtubeSrv.processTime(duration) * 1000;
                     console.log('Duration processed: ', msDuration);
                     this.lists[chann].initAt = (new Date()).getTime();
-                    this.lists[chann].timmer = setTimeout(() => {
+                    this.timmers[chann] = setTimeout(() => {
                         this.next(chann);
                     }, msDuration);
                     this.lists[chann].playing = true;
@@ -83,7 +84,7 @@ export class ListService {
     }
 
     public pause(chann: string): void {
-        clearTimeout(this.lists[chann].timmer);
+        clearTimeout(this.timmers[chann]);
         this.lists[chann].playing = false;
         this.sendPause(chann);
     }
@@ -177,6 +178,5 @@ export class ChannelList {
     public list: string[];
     public playing: boolean;
     public currentSong?: string;
-    public timmer?: NodeJS.Timeout;
     public initAt?: number;
 }

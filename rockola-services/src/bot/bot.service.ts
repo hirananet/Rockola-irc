@@ -71,7 +71,7 @@ export class BotService {
                         // verificamos si es op del canal o que onda?
                         if(this.isOp(channel, from)) {
                             if(this.listSrv.forcePlay(channel, parts[1])) {
-                                this.client.say(channel, from + ', reproduciendo el video. [/R>]');
+                                this.client.say(channel, from + ', reproduciendo el video. :playlist:');
                             } else {
                                 this.client.say(channel, from + ', no reconozco el video de yt.');
                             }
