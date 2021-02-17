@@ -32,6 +32,7 @@ export class YoutubeService {
 
     getVideoID(link: string): string {
         const youtubeLink = /((?:https?:)?\/\/)?((?:www|m)\.)?((?:youtube\.com|youtu.be))(\/(?:[\w\-]+\?v=|embed\/|v\/)?)([\w\-]+)(\S+)?/.exec(link);
+        console.log(youtubeLink);
         if (youtubeLink) {
             return youtubeLink[5];
         }

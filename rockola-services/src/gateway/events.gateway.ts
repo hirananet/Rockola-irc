@@ -6,7 +6,7 @@ import { SocketWI } from "./SocketWI";
 import { ListService } from "src/list/list.service";
 import { Logger } from "@nestjs/common";
 
-@WebSocketGateway(3596)
+@WebSocketGateway(3001)
 export class EventsGateway {
 
     @WebSocketServer()

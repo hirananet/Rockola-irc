@@ -21,16 +21,18 @@
     "test:e2e": "jest --config ./test/jest-e2e.json"
   },
   "dependencies": {
-    "@nestjs/common": "^7.5.1",
-    "@nestjs/core": "^7.5.1",
-    "@nestjs/platform-express": "^7.5.1",
+    "@nestjs/common": "^7.6.12",
+    "@nestjs/core": "^7.6.12",
+    "@nestjs/platform-express": "^7.6.12",
+    "@nestjs/platform-ws": "^7.6.12",
     "@nestjs/websockets": "^7.6.12",
+    "@types/ws": "^7.4.0",
     "axios": "^0.21.1",
     "irc": "^0.5.2",
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",
     "rxjs": "^6.6.3",
-    "ws": "^7.4.3"
+    "uuid": "^8.3.2"
   },
   "devDependencies": {
     "@nestjs/cli": "^7.5.1",

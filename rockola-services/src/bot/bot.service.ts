@@ -57,15 +57,15 @@ export class BotService {
         if(botEnvironment.botName == to) {
             // PM
             talkingToMe = true;
-            command = text.toLowerCase();
+            command = text;
         } else {
             // Channel
             talkingToMe = text.indexOf(botEnvironment.botName) === 0;
-            command = text.replace(botEnvironment.botName, '').trim().toLowerCase();
+            command = text.replace(botEnvironment.botName, '').trim();
             const channel = to;
             if(talkingToMe) {
                 // me hablan:
-                if(command.indexOf('play') === 0) {
+                if(command.toLowerCase().indexOf('play') === 0) {
                     const parts = command.split(' ');
                     if(parts[1]) { // con link
                         // verificamos si es op del canal o que onda?
@@ -94,14 +94,14 @@ export class BotService {
                     }
                     // play link
                     // play without link
-                } else if(command.indexOf('pause') === 0) {
+                } else if(command.toLowerCase().indexOf('pause') === 0) {
                     if(this.isOp(channel, from)) {
                         this.listSrv.pause(channel);
                         this.client.say(channel, from + ', la lista fue pausada');
                     } else {
                         this.morePrivsRequired(channel, from, 'HalfOp');
                     }
-                } else if(command.indexOf('add') === 0) {
+                } else if(command.toLowerCase().indexOf('add') === 0) {
                     if(this.isVoiced(channel, from)) {
                         if(this.listSrv.add(channel, command.split(' ')[1])) {
                             this.client.say(channel, from + ', agregado a la lista.');
@@ -111,7 +111,7 @@ export class BotService {
                     } else {
                         this.morePrivsRequired(channel, from, 'Voice');
                     }
-                } else if(command.indexOf('remove') === 0) {
+                } else if(command.toLowerCase().indexOf('remove') === 0) {
                     if(this.isOp(channel, from)) {
                         if(this.listSrv.remove(channel, command.split(' ')[1])) {
                             this.client.say(channel, from + ', eliminado de la lista.');
@@ -121,7 +121,7 @@ export class BotService {
                     } else {
                         this.morePrivsRequired(channel, from, 'HalfOp');
                     }
-                } else if(command.indexOf('next') === 0) {
+                } else if(command.toLowerCase().indexOf('next') === 0) {
                     if(this.isOp(channel, from)) {
                         this.listSrv.next(channel);
                         this.client.say(channel, from + ', avanzando tema.');
@@ -132,15 +132,15 @@ export class BotService {
             }
         }
         if(talkingToMe) {
-            if(command.indexOf('join') === 0) {
+            if(command.toLowerCase().indexOf('join') === 0) {
                 const channel = command.split(' ')[1];
                 this.client.join(channel);
             }
-            if(command.indexOf('leave') === 0) {
+            if(command.toLowerCase().indexOf('leave') === 0) {
                 const channel = command.split(' ')[1];
                 this.client.part(channel);
             }
-            if(command.indexOf('ayuda') === 0 || command.indexOf('help') === 0) {
+            if(command.toLowerCase().indexOf('ayuda') === 0 || command.indexOf('help') === 0) {
                 this.client.say(from, 'Ayuda de la rockola');
                 this.client.say(from, 'Comandos en canales y privados:');
                 this.client.say(from, '[>] ayuda o help');

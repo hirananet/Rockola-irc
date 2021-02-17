@@ -1,15 +1,18 @@
 import * as WebSocket from 'ws';
-import { WebSocketAdapter, INestApplicationContext } from '@nestjs/common';
+import { INestApplicationContext, WebSocketAdapter } from '@nestjs/common';
 import { MessageMappingProperties } from '@nestjs/websockets';
 import { Observable, fromEvent, EMPTY } from 'rxjs';
 import { mergeMap, filter } from 'rxjs/operators';
 import { v4 } from 'uuid';
+import { WsAdapter } from '@nestjs/platform-ws/adapters/ws-adapter';
 
-export class WsAdapter implements WebSocketAdapter {
+export class WsAdapterWithID extends WsAdapter implements WebSocketAdapter {
 
     private connNumber = 0;
 
-    constructor(private app: INestApplicationContext) {}
+    constructor(private app: INestApplicationContext) {
+        super(app);
+    }
 
     create(port: number, options: any = {}): any {
         return new WebSocket.Server({ port, ...options });

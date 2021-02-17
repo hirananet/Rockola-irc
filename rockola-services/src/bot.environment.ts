@@ -1,7 +1,8 @@
 export const botEnvironment = {
     "channels": [
         // "#main",
-        "#LaTaberna"
+        "#LaTaberna",
+        "#rockola"
     ],
     "server": "irc.hirana.net",
     "botName": "Rockola",

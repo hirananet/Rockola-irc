@@ -41,6 +41,9 @@ export class ListService {
     }
 
     public start(chann: string): void {
+        if(!this.lists[chann]) {
+            return;
+        }
         if(this.lists[chann].currentSong) {
             this.youtubeSrv.getVideoData(this.lists[chann].currentSong).subscribe(d => {
                 const duration = d?.data?.items[0]?.contentDetails?.duration;
@@ -53,7 +56,8 @@ export class ListService {
                     this.lists[chann].playing = true;
                     this.sendStartEvent(chann);
                 } else {
-                    this.logger.error('no se puede obtener detalles de #0' + this.lists[chann].currentSong );
+                    this.logger.error('no se puede obtener detalles de #0  ' + this.lists[chann].currentSong );
+                    // console.log(d);
                 }
             });
         } else {
@@ -64,6 +68,7 @@ export class ListService {
     public forcePlay(chann: string, link: string): boolean {
         const ytID = this.youtubeSrv.getVideoID(link);
         if(ytID) {
+            this.createList(chann);
             this.lists[chann].playing = true;
             this.lists[chann].currentSong = ytID;
             this.start(chann);
@@ -78,9 +83,20 @@ export class ListService {
         this.sendPause(chann);
     }
 
+    private createList(chann: string) {
+        if(!this.lists[chann]) {
+            this.lists[chann] = {
+                channel: chann, 
+                list: [],
+                playing: false
+            };
+        }
+    }
+
     public add(chann: string, link: string): boolean {
         const ytID = this.youtubeSrv.getVideoID(link);
         if(ytID) {
+            this.createList(chann);
             if(this.lists[chann].currentSong) {
                 this.lists[chann].list.push(ytID);
             } else {
@@ -105,6 +121,7 @@ export class ListService {
     private sendPlaylist(chann: string) {
         this.sendToChannelWatchers(chann, {
             action: 'PLAYLIST',
+            chann,
             list: this.getList(chann)
         });
     }
@@ -112,12 +129,14 @@ export class ListService {
     private sendStartEvent(chann: string) {
         this.sendToChannelWatchers(chann, {
             action: 'START',
+            chann,
             song: this.lists[chann].currentSong
         });
     }
 
     private sendPause(chann: string) {
         this.sendToChannelWatchers(chann, {
+            chann,
             action: 'PAUSE'
         });
     }
@@ -151,6 +170,6 @@ export class ChannelList {
     public channel: string;
     public list: string[];
     public playing: boolean;
-    public currentSong: string;
-    public timmer: NodeJS.Timeout;
+    public currentSong?: string;
+    public timmer?: NodeJS.Timeout;
 }
