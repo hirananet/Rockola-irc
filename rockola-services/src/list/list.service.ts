@@ -52,6 +52,9 @@ export class ListService {
                     const msDuration = this.youtubeSrv.processTime(duration) * 1000;
                     console.log('Duration processed: ', d.data.items[0]);
                     this.lists[chann].initAt = (new Date()).getTime();
+                    if(this.timmers[chann]) {
+                        clearTimeout(this.timmers[chann]);
+                    }
                     this.timmers[chann] = setTimeout(() => {
                         console.log('--- Song finished, going next ----');
                         this.next(chann);
