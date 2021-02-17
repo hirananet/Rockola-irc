@@ -1,9 +1,11 @@
 import { SocketWI } from './../gateway/SocketWI';
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { YoutubeService } from 'src/youtube/youtube.service';
 
 @Injectable()
 export class ListService {
+
+    private readonly logger = new Logger(ListService.name);
 
     public lists: ChanLists = {};
     public sockets: {[chann: string]: SocketWI[]} = {};
@@ -39,25 +41,39 @@ export class ListService {
     }
 
     public start(chann: string): void {
-        // TODO: controlar tiempo para siguiente canción
-        this.lists[chann].playing = true;
-        this.sendStartEvent(chann);
+        if(this.lists[chann].currentSong) {
+            this.youtubeSrv.getVideoData(this.lists[chann].currentSong).subscribe(d => {
+                const duration = d?.data?.items[0]?.contentDetails?.duration;
+                if(duration) {
+                    const msDuration = this.youtubeSrv.processTime(duration) * 1000;
+                    console.log('Duration processed: ', msDuration);
+                    this.lists[chann].timmer = setTimeout(() => {
+                        this.next(chann);
+                    }, msDuration);
+                    this.lists[chann].playing = true;
+                    this.sendStartEvent(chann);
+                } else {
+                    this.logger.error('no se puede obtener detalles de #0' + this.lists[chann].currentSong );
+                }
+            });
+        } else {
+            this.next(chann);
+        }
     }
 
     public forcePlay(chann: string, link: string): boolean {
         const ytID = this.youtubeSrv.getVideoID(link);
         if(ytID) {
-            // TODO: controlar tiempo para siguiente canción
             this.lists[chann].playing = true;
             this.lists[chann].currentSong = ytID;
-            this.sendStartEvent(chann);
+            this.start(chann);
             return true;
         }
         return false;
     }
 
     public pause(chann: string): void {
-        // TODO: parar tiempo para siguiente canción
+        clearTimeout(this.lists[chann].timmer);
         this.lists[chann].playing = false;
         this.sendPause(chann);
     }
@@ -109,8 +125,8 @@ export class ListService {
     public next(chann: string) {
         if(this.lists[chann].list.length > 0) {
             this.lists[chann].currentSong = this.lists[chann].list.splice(0, 1)[0];
-            this.sendStartEvent(chann);
             this.sendPlaylist(chann);
+            this.start(chann);
         } else {
             this.lists[chann].playing = false;
             this.sendPause(chann);
@@ -136,4 +152,5 @@ export class ChannelList {
     public list: string[];
     public playing: boolean;
     public currentSong: string;
+    public timmer: NodeJS.Timeout;
 }

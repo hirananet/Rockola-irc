@@ -10,7 +10,7 @@ export class YoutubeService {
         
     }
 
-    getVideoData(id: string): Observable<AxiosResponse<any>> {
+    getVideoData(id: string): Observable<AxiosResponse<YTDetails>> {
         return this.httpClient.get('https://www.googleapis.com/youtube/v3/videos?id=' + id + '&part=contentDetails&key=' + apiCredentials.yt3);
     }
 
