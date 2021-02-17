@@ -50,6 +50,7 @@ export class ListService {
                 if(duration) {
                     const msDuration = this.youtubeSrv.processTime(duration) * 1000;
                     console.log('Duration processed: ', msDuration);
+                    this.lists[chann].initAt = (new Date()).getTime();
                     this.lists[chann].timmer = setTimeout(() => {
                         this.next(chann);
                     }, msDuration);
@@ -63,6 +64,10 @@ export class ListService {
         } else {
             this.next(chann);
         }
+    }
+
+    public getSongTime(chann: string) {
+        return (new Date()).getTime() - this.lists[chann].initAt;
     }
 
     public forcePlay(chann: string, link: string): boolean {
@@ -127,6 +132,7 @@ export class ListService {
     }
 
     private sendStartEvent(chann: string) {
+        console.log('send starting to: ', chann);
         this.sendToChannelWatchers(chann, {
             action: 'START',
             chann,
@@ -172,4 +178,5 @@ export class ChannelList {
     public playing: boolean;
     public currentSong?: string;
     public timmer?: NodeJS.Timeout;
+    public initAt?: number;
 }

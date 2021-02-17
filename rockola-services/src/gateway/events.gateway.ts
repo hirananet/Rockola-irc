@@ -45,4 +45,12 @@ export class EventsGateway {
         this.listSrv.unAssoc(channelID, client);
     }
 
+    @SubscribeMessage(WSMessageTypes.TIME) 
+    handleTime(@MessageBody() channelID: string, @ConnectedSocket() client: SocketWI) {
+        client.send(JSON.stringify({
+            action: 'TIME',
+            currentTime: this.listSrv.getSongTime(channelID)
+        }));
+    }
+
 }

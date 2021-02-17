@@ -71,7 +71,7 @@ export class BotService {
                         // verificamos si es op del canal o que onda?
                         if(this.isOp(channel, from)) {
                             if(this.listSrv.forcePlay(channel, parts[1])) {
-                                this.client.say(channel, from + ', reproduciendo el video.');
+                                this.client.say(channel, from + ', reproduciendo el video. [/R>]');
                             } else {
                                 this.client.say(channel, from + ', no reconozco el video de yt.');
                             }
@@ -86,7 +86,7 @@ export class BotService {
                                 this.client.say(channel, from + ', la lista ya está en reproducción');
                             } else {
                                 this.listSrv.start(channel);
-                                this.client.say(channel, '@todos iniciando rockola [R>]');
+                                this.client.say(channel, '@todos iniciando rockola [/R>]');
                             }
                         } else {
                             this.client.say(channel, from + ', no hay una lista disponible, por favor use play http://youtubelink o add http://youtubelink para iniciar una lista.')
