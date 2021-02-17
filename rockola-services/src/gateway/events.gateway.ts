@@ -4,6 +4,7 @@ import { Server } from "ws";
 import { WSMessageTypes } from "./WSMessageTypes";
 import { SocketWI } from "./SocketWI";
 import { ListService } from "src/list/list.service";
+import { Logger } from "@nestjs/common";
 
 @WebSocketGateway(3596)
 export class EventsGateway {
@@ -11,14 +12,18 @@ export class EventsGateway {
     @WebSocketServer()
     private server: Server;
 
+    private readonly logger = new Logger(EventsGateway.name);
+
     constructor(private listSrv: ListService) {
 
     }
 
     @SubscribeMessage(WSMessageTypes.WELCOME) 
-    handleWelcome(@MessageBody() data: string, @ConnectedSocket() client: SocketWI) {
+    handleWelcome(@MessageBody() clientName: string, @ConnectedSocket() client: SocketWI) {
+        this.logger.log('New client connection: ' + clientName + ':' + client.socketID);
         (client as any).on('close', () => {
             this.listSrv.unAssocAll(client);
+            this.logger.log('Client disconnection: ' + clientName + ':' + client.socketID);
         });
     }
 
