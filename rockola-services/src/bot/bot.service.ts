@@ -71,7 +71,7 @@ export class BotService {
                         // verificamos si es op del canal o que onda?
                         if(this.isOp(channel, from)) {
                             this.listSrv.forcePlay(channel, parts[1]);
-                            // TODO: responder forceplay
+                            this.client.say(channel, 'Reproduciendo el video.')
                         } else {
                             this.morePrivsRequired(channel, from, 'HalfOp');
                         }
@@ -94,28 +94,28 @@ export class BotService {
                 } else if(command.indexOf('pause') === 0) {
                     if(this.isOp(channel, from)) {
                         this.listSrv.pause(channel);
-                        // TODO: responder pausado
+                        this.client.say(channel, 'La lista fue pausada');
                     } else {
                         this.morePrivsRequired(channel, from, 'HalfOp');
                     }
                 } else if(command.indexOf('add') === 0) {
                     if(this.isVoiced(channel, from)) {
                         this.listSrv.add(channel, command.split(' ')[1]);
-                        // TODO: responder agregado
+                        this.client.say(channel, 'Agregado a la lista.');
                     } else {
                         this.morePrivsRequired(channel, from, 'Voice');
                     }
                 } else if(command.indexOf('remove') === 0) {
                     if(this.isOp(channel, from)) {
                         this.listSrv.remove(channel, command.split(' ')[1]);
-                        // TODO: responder removido
+                        this.client.say(channel, 'Eliminado de la lista.');
                     } else {
                         this.morePrivsRequired(channel, from, 'HalfOp');
                     }
                 } else if(command.indexOf('next') === 0) {
                     if(this.isOp(channel, from)) {
                         this.listSrv.next(channel);
-                        // TODO: responder pasado
+                        this.client.say(channel, 'Avanzando tema.');
                     } else {
                         this.morePrivsRequired(channel, from, 'HalfOp');
                     }
