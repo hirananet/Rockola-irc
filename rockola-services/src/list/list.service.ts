@@ -122,6 +122,7 @@ export class ListService {
         this.createList(chann);
         if(this.lists[chann].currentSong) {
             this.youtubeSrv.getVideoSnippet(ytID).subscribe(d => {
+                if(!d.data || !d.data?.items[0]?.snippet?.title)
                 this.lists[chann].list.push({id: ytID, title: d.data?.items[0]?.snippet?.title});
                 this.sendPlaylist(chann);
             });
