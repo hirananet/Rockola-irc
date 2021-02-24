@@ -53,4 +53,12 @@ export class EventsGateway {
         }));
     }
 
+    @SubscribeMessage(WSMessageTypes.PING) 
+    handlePing(@MessageBody() pingID: string, @ConnectedSocket() client: SocketWI) {
+        (client as any).send(JSON.stringify({
+            action: 'PONG',
+            pingID
+        }));
+    }
+
 }

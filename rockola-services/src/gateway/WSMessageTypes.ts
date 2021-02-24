@@ -3,5 +3,6 @@ export enum WSMessageTypes {
     LIST = 'list',
     WATCH = 'watch',
     UNWATCH = 'unwatch',
-    TIME = 'time'
+    TIME = 'time',
+    PING = 'ping'
 }
