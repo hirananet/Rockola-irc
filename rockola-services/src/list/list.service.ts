@@ -1,3 +1,4 @@
+import { Subject } from 'rxjs';
 import { SocketWI } from './../gateway/SocketWI';
 import { Injectable, Logger } from '@nestjs/common';
 import { YoutubeService } from 'src/youtube/youtube.service';
@@ -10,6 +11,8 @@ export class ListService {
     public lists: ChanLists = {};
     public timmers: {[chann: string]: NodeJS.Timeout} = {};
     public sockets: {[chann: string]: SocketWI[]} = {};
+
+    public readonly endOfList: Subject<string> = new Subject<string>();
 
     constructor(private youtubeSrv: YoutubeService) { }
 
@@ -222,6 +225,7 @@ export class ListService {
             return true;
         }
         this.logger.warn('STOPPED END LIST ' + chann);
+        this.endOfList.next(chann);
         this.lists[chann].playing = false;
         this.lists[chann].currentSong = undefined;
         this.lists[chann].currentTitle = undefined;

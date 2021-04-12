@@ -29,6 +29,9 @@ export class BotService {
         this.client.addListener('names', (channel, nicks) => {
             this.channelsNicks[channel.slice(1)] = nicks;
         });
+        listSrv.endOfList.subscribe(chann => {
+            this.client.say(chann, '@todos no quedan más canciones en la lista de reproducción.');
+        });
     }
 
     public onMessage(from: string, to: string, text: string, message: string) {
