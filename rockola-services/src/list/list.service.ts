@@ -162,9 +162,9 @@ export class ListService {
             if(this.lists[chann].list.find(_ytid => _ytid.id != ytID)) {
                 this.lists[chann].list = this.lists[chann].list.filter(_ytid => _ytid.id != ytID);
                 this.sendPlaylist(chann);
-                res();
+                res(true);
             } else {
-                rej();
+                res(false);
             }
         });
     }
