@@ -109,44 +109,64 @@ export class ListService {
         }
     }
 
-    public add(chann: string, link: string): boolean {
+    public async add(chann: string, link: string): Promise<boolean> {
         const ytID = this.youtubeSrv.getVideoID(link);
         if(ytID) {
-            this.aid(chann, ytID);
-            return true;
+            return this.aid(chann, ytID);
         }
-        return false;
+        return this.aid(chann, link);
     }
 
-    public aid(chann: string, ytID: string) {
-        this.createList(chann);
-        if(this.lists[chann].currentSong) {
-            this.youtubeSrv.getVideoSnippet(ytID).subscribe(d => {
-                if(!d.data || !d.data?.items[0]?.snippet?.title)
-                this.lists[chann].list.push({id: ytID, title: d.data?.items[0]?.snippet?.title});
-                this.sendPlaylist(chann);
-            });
-        } else {
-            this.youtubeSrv.getVideoSnippet(ytID).subscribe(d => {
-                this.lists[chann].currentSong = ytID;
-                this.lists[chann].currentTitle = d.data?.items[0]?.snippet?.title;
-                this.sendPlaylist(chann);
-            });
-        }
+    private aid(chann: string, ytID: string): Promise<boolean> {
+        return new Promise<boolean>((res, rej) => {
+            this.createList(chann);
+            if(this.lists[chann].currentSong) {
+                this.youtubeSrv.getVideoSnippet(ytID).subscribe(d => {
+                    if(d.data?.items[0]?.snippet?.title) {
+                        this.lists[chann].list.push({id: ytID, title: d.data?.items[0]?.snippet?.title});
+                        this.sendPlaylist(chann);
+                        res(true);
+                    } else {
+                        res(false);
+                    }
+                }, e => {
+                    rej(e);
+                });
+            } else {
+                this.youtubeSrv.getVideoSnippet(ytID).subscribe(d => {
+                    if(d.data?.items[0]?.snippet?.title) {
+                        this.lists[chann].currentSong = ytID;
+                        this.lists[chann].currentTitle = d.data?.items[0]?.snippet?.title;
+                        this.sendPlaylist(chann);
+                        res(true);
+                    } else {
+                        res(false);
+                    }
+                }, e => {
+                    rej(e);
+                });
+            }
+        });
     }
 
-    public remove(chann: string, link: string) {
+    public async remove(chann: string, link: string): Promise<boolean> {
         const ytID = this.youtubeSrv.getVideoID(link);
         if(ytID) {
-            this.rid(chann, ytID);
-            return true;
+            return this.rid(chann, ytID);
         }
-        return false;
+        return this.rid(chann, link);
     }
 
-    public rid(chann: string, ytID: string) {
-        this.lists[chann].list = this.lists[chann].list.filter(_ytid => _ytid.id != ytID);
-        this.sendPlaylist(chann);
+    private rid(chann: string, ytID: string): Promise<boolean> {
+        return new Promise<boolean>((res, rej) => {
+            if(this.lists[chann].list.find(_ytid => _ytid.id != ytID)) {
+                this.lists[chann].list = this.lists[chann].list.filter(_ytid => _ytid.id != ytID);
+                this.sendPlaylist(chann);
+                res();
+            } else {
+                rej();
+            }
+        });
     }
 
     private sendPlaylist(chann: string) {

@@ -101,37 +101,31 @@ export class BotService {
                     } else {
                         this.morePrivsRequired(channel, from, 'HalfOp');
                     }
-                } else if(command.toLowerCase().indexOf('aid') === 0) {
-                    if(this.isVoiced(channel, from)) {
-                        this.listSrv.aid(channel, command.split(' ')[1])
-                        this.client.say(channel, from + ', agregado a la lista.');
-                    } else {
-                        this.morePrivsRequired(channel, from, 'Voice');
-                    }
                 } else if(command.toLowerCase().indexOf('add') === 0) {
                     if(this.isVoiced(channel, from)) {
-                        if(this.listSrv.add(channel, command.split(' ')[1])) {
-                            this.client.say(channel, from + ', agregado a la lista.');
-                        } else {
-                            this.client.say(channel, from + ', no reconozco ese enlace de youtube.');
-                        }
+                        this.listSrv.add(channel, command.split(' ')[1]).then(res => {
+                            if(res) {
+                                this.client.say(channel, from + ', agregado a la lista.');
+                            } else {
+                                this.client.say(channel, from + ', no reconozco ese enlace/id de yt.');
+                            }
+                        }).catch(e => {
+                            this.client.say(channel, from + ', oops, ocurrió un error, intenta más tarde.');
+                        });
                     } else {
                         this.morePrivsRequired(channel, from, 'Voice');
                     }
                 } else if(command.toLowerCase().indexOf('remove') === 0) {
                     if(this.isOp(channel, from)) {
-                        if(this.listSrv.remove(channel, command.split(' ')[1])) {
-                            this.client.say(channel, from + ', eliminado de la lista.');
-                        } else {
-                            this.client.say(channel, from + ', no reconozco ese enlace de yt.');
-                        }
-                    } else {
-                        this.morePrivsRequired(channel, from, 'HalfOp');
-                    }
-                } else if(command.toLowerCase().indexOf('rid') === 0) {
-                    if(this.isOp(channel, from)) {
-                        this.listSrv.rid(channel, command.split(' ')[1]);
-                        this.client.say(channel, from + ', eliminado de la lista.');
+                        this.listSrv.remove(channel, command.split(' ')[1]).then(r => {
+                            if(r) {
+                                this.client.say(channel, from + ', eliminado de la lista.');
+                            } else {
+                                this.client.say(channel, from + ', no reconozco ese enlace/id de yt.');
+                            }
+                        }).catch(e => {
+                            this.client.say(channel, from + ', oops, ocurrió un error, intenta más tarde.');
+                        });
                     } else {
                         this.morePrivsRequired(channel, from, 'HalfOp');
                     }
