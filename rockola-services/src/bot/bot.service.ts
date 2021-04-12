@@ -30,7 +30,7 @@ export class BotService {
             this.channelsNicks[channel.slice(1)] = nicks;
         });
         listSrv.endOfList.subscribe(chann => {
-            this.client.say(chann, '@todos no quedan más canciones en la lista de reproducción.');
+            this.client.say(chann, '@all no quedan más canciones en la lista de reproducción.');
         });
     }
 
