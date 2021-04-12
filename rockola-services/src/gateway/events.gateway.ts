@@ -49,7 +49,8 @@ export class EventsGateway {
     handleTime(@MessageBody() channelID: string, @ConnectedSocket() client: SocketWI) {
         client.send(JSON.stringify({
             action: 'TIME',
-            currentTime: this.listSrv.getSongTime(channelID)
+            currentTime: this.listSrv.getSongTime(channelID),
+            chann: channelID
         }));
     }
 

@@ -1,7 +1,6 @@
 import { SocketWI } from './../gateway/SocketWI';
 import { Injectable, Logger } from '@nestjs/common';
 import { YoutubeService } from 'src/youtube/youtube.service';
-import { resolve } from 'path';
 
 @Injectable()
 export class ListService {
