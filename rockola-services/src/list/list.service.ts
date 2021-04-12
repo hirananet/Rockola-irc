@@ -1,6 +1,7 @@
 import { SocketWI } from './../gateway/SocketWI';
 import { Injectable, Logger } from '@nestjs/common';
 import { YoutubeService } from 'src/youtube/youtube.service';
+import { resolve } from 'path';
 
 @Injectable()
 export class ListService {
@@ -75,21 +76,30 @@ export class ListService {
         return (new Date()).getTime() - this.lists[chann].initAt;
     }
 
-    public forcePlay(chann: string, link: string): boolean {
-        const ytID = this.youtubeSrv.getVideoID(link);
-        this.pause(chann);
-        if(ytID) {
-            this.createList(chann);
-            this.lists[chann].playing = true;
-            this.lists[chann].currentSong = ytID;
+    public forcePlay(chann: string, link: string): Promise<boolean> {
+        return new Promise<boolean>((res, rej) => {
+            let ytID = this.youtubeSrv.getVideoID(link);
+            this.pause(chann);
+            if(!ytID) {
+                ytID = link;
+            }
             this.youtubeSrv.getVideoSnippet(ytID).subscribe(d => {
-                this.lists[chann].currentTitle = d.data?.items[0]?.snippet?.title;
-                this.sendPlaylist(chann);
-                this.start(chann);
+                if(d.data?.items[0]?.snippet?.title) {
+                    this.createList(chann);
+                    this.lists[chann].playing = true;
+                    this.lists[chann].currentSong = ytID;
+                    this.lists[chann].currentTitle = d.data.items[0].snippet.title;
+                    this.sendPlaylist(chann);
+                    this.start(chann);
+                    res(true);
+                } else {
+                    res(false);
+                }
+            },e => {
+                this.logger.error('Error forcing play', e);
+                rej(e);
             });
-            return true;
-        }
-        return false;
+        });
     }
 
     public pause(chann: string): void {
@@ -130,6 +140,7 @@ export class ListService {
                         res(false);
                     }
                 }, e => {
+                    this.logger.error('Error adding #1 id ' + ytID, e);
                     rej(e);
                 });
             } else {
@@ -143,6 +154,7 @@ export class ListService {
                         res(false);
                     }
                 }, e => {
+                    this.logger.error('Error adding #2 id ' + ytID, e);
                     rej(e);
                 });
             }
@@ -201,7 +213,7 @@ export class ListService {
             this.sendPlaylist(chann);
             this.start(chann);
         } else {
-            this.logger.error('STOPPED END LIST ' + chann);
+            this.logger.warn('STOPPED END LIST ' + chann);
             this.lists[chann].playing = false;
             this.lists[chann].currentSong = undefined;
             this.lists[chann].currentTitle = undefined;

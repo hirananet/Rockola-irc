@@ -70,11 +70,15 @@ export class BotService {
                     if(parts[1]) { // con link
                         // verificamos si es op del canal o que onda?
                         if(this.isOp(channel, from)) {
-                            if(this.listSrv.forcePlay(channel, parts[1])) {
-                                this.client.say(channel, from + ', reproduciendo el video. :playlist:');
-                            } else {
-                                this.client.say(channel, from + ', no reconozco el video de yt.');
-                            }
+                            this.listSrv.forcePlay(channel, parts[1]).then(r => {
+                                if(r) {
+                                    this.client.say(channel, from + ', reproduciendo el video. :playlist:');
+                                } else {
+                                    this.client.say(channel, from + ', no reconozco el link/id de yt.');
+                                }
+                            }).catch(e => {
+                                this.client.say(channel, from + ', oops, ocurrió un error, intenta más tarde.');
+                            });
                         } else {
                             this.morePrivsRequired(channel, from, 'HalfOp');
                         }
