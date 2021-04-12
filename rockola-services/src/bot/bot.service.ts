@@ -29,26 +29,6 @@ export class BotService {
         this.client.addListener('names', (channel, nicks) => {
             this.channelsNicks[channel.slice(1)] = nicks;
         });
-        // this.client.addListener('join', (channel, nick, message) => {
-        //     if(nick === botEnvironment.botName) {
-
-        //     }
-        // });
-        // this.client.addListener('part', (channel, nick, reason, message) => {
-        //     if(nick === botEnvironment.botName) {
-                
-        //     }
-        // });
-        // this.client.addListener('quit', (channel, nick, reason, message) => {
-        //     if(nick === botEnvironment.botName) {
-                
-        //     }
-        // });
-        // this.client.addListener('kick', (channel, nick, reason, message) => {
-        //     if(nick === botEnvironment.botName) {
-                
-        //     }
-        // });
     }
 
     public onMessage(from: string, to: string, text: string, message: string) {
@@ -86,22 +66,29 @@ export class BotService {
                         if(!this.isVoiced(channel, from)) {
                             this.morePrivsRequired(channel, from, 'Voice');
                         } else if(this.listSrv.exists(channel)) {
-                            if(this.listSrv.getList(channel).playing) {
+                            const list = this.listSrv.getList(channel);
+                            if(list.playing) {
                                 this.client.say(channel, from + ', la lista ya está en reproducción');
+                            } else if(list.list.length == 0) {
+                                this.client.say(channel, from + ', la lista no tiene temas, agrega uno con add <link> o play <link>');
                             } else {
                                 this.listSrv.start(channel);
                                 this.client.say(channel, '@todos iniciando rockola :playlist:');
                             }
                         } else {
-                            this.client.say(channel, from + ', no hay una lista disponible, por favor use play http://youtubelink o add http://youtubelink para iniciar una lista.')
+                            this.client.say(channel, from + ', no hay una lista disponible, por favor use play <link> o add <link> para iniciar una lista.')
                         }
                     }
                     // play link
                     // play without link
                 } else if(command.toLowerCase().indexOf('pause') === 0) {
                     if(this.isOp(channel, from)) {
-                        this.listSrv.pause(channel);
-                        this.client.say(channel, from + ', la lista fue pausada');
+                        if(!this.listSrv.exists(channel) || !this.listSrv.getList(channel).playing) {
+                            this.client.say(channel, from + ', la lista ya estaba pausada'); 
+                        } else {
+                            this.listSrv.pause(channel);
+                            this.client.say(channel, from + ', la lista fue pausada');
+                        }
                     } else {
                         this.morePrivsRequired(channel, from, 'HalfOp');
                     }
@@ -135,8 +122,12 @@ export class BotService {
                     }
                 } else if(command.toLowerCase().indexOf('next') === 0) {
                     if(this.isOp(channel, from)) {
-                        this.listSrv.next(channel);
-                        this.client.say(channel, from + ', avanzando tema.');
+                        const next = this.listSrv.next(channel);
+                        if(next) {
+                            this.client.say(channel, from + ', avanzando tema.');
+                        } else {
+                            this.client.say(channel, from + ', no hay mas temas, por favor agrega temas con add <link> o play <link>.');
+                        }
                     } else {
                         this.morePrivsRequired(channel, from, 'HalfOp');
                     }

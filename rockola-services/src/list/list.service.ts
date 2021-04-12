@@ -219,13 +219,14 @@ export class ListService {
             this.lists[chann].currentTitle = song.title;
             this.sendPlaylist(chann);
             this.start(chann);
-        } else {
-            this.logger.warn('STOPPED END LIST ' + chann);
-            this.lists[chann].playing = false;
-            this.lists[chann].currentSong = undefined;
-            this.lists[chann].currentTitle = undefined;
-            this.sendPause(chann);
+            return true;
         }
+        this.logger.warn('STOPPED END LIST ' + chann);
+        this.lists[chann].playing = false;
+        this.lists[chann].currentSong = undefined;
+        this.lists[chann].currentTitle = undefined;
+        this.sendPause(chann);
+        return false;
     }
 
     public sendToChannelWatchers(chan: string, obj: any) {
