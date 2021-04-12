@@ -60,7 +60,7 @@ export class ListService {
                         this.next(chann);
                     }, msDuration);
                     this.lists[chann].playing = true;
-                    this.sendStartEvent(chann);
+                    this.sendPlayEvent(chann);
                 } else {
                     this.logger.error('no se puede obtener detalles de #0  ' + this.lists[chann].currentSong );
                     // console.log(d);
@@ -88,7 +88,7 @@ export class ListService {
                     this.lists[chann].playing = true;
                     this.lists[chann].currentSong = ytID;
                     this.lists[chann].currentTitle = d.data.items[0].snippet.title;
-                    this.sendPlaylist(chann);
+                    this.sendNewPlaylist(chann);
                     this.start(chann);
                     res(true);
                 } else {
@@ -188,10 +188,18 @@ export class ListService {
         });
     }
 
-    private sendStartEvent(chann: string) {
-        console.log('send starting to: ', chann);
+    private sendNewPlaylist(chann: string) {
         this.sendToChannelWatchers(chann, {
-            action: 'START',
+            action: 'NEW_PLAYLIST',
+            chann,
+            list: this.getList(chann)
+        });
+    }
+
+    private sendPlayEvent(chann: string) {
+        console.log('send play to: ', chann);
+        this.sendToChannelWatchers(chann, {
+            action: 'PLAY',
             chann,
             song: this.lists[chann].currentSong
         });
